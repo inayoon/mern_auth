@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Signin() {
   const [form, setForm] = useState({});
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setForm({ ...form, [e.target.id]: e.target.value });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
-      setError(false);
+      dispatch(signInStart());
       //fetch 말고 axios 사용하는걸로 나중에 바꿔보기
       const res = await fetch("/api/auth/signin", {
         method: "POST",
@@ -23,14 +28,13 @@ export default function Signin() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      setLoading(false);
       if (data.success === false) {
-        return setError(true);
+        return dispatch(signInFailure(data));
       }
+      dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
-      setLoading(false);
-      setError(true);
+      dispatch(signInFailure(error));
     }
   };
 
@@ -65,7 +69,9 @@ export default function Signin() {
           <span className="text-blue-500">Sign up</span>
         </Link>
       </div>
-      <p className="text-red-600">{error && "Something went wrong"}</p>
+      <p className="text-red-600">
+        {error ? error.message || "Something went wrong" : ""}
+      </p>
     </div>
   );
 }
