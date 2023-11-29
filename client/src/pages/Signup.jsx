@@ -1,6 +1,39 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Signup() {
+  const [form, setForm] = useState({});
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.id]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError(false);
+      //fetch 말고 axios 사용하는걸로 나중에 바꿔보기
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (data.success === false) {
+        return setError(true);
+      }
+      navigate("/sign-in");
+    } catch (error) {
+      setLoading(false);
+      setError(true);
+    }
+  };
+
   return (
     <div className="p-4 max-w-lg mx-auto">
       <h1 className="text-3xl text-center my-6">Sign up</h1>
