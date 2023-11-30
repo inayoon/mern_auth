@@ -30,7 +30,7 @@ export const signin = async (req, res, next) => {
 
     //Not to return the pw info to client
     //validUser._doc(주로 필요한 정보는 _doc에 있음)에 pw를 hashedPw 속에 저장하고 그 외의 나저미는 rest라는 변수에 저장하는 디스트럭쳐링 문법임
-    const { password: hasedPassword, ...rest } = validUser._doc;
+    const { password: hashedPassword, ...rest } = validUser._doc;
 
     //First, put token inside the cookie using res.cookie()
     //access_token is the name of cookie and token is the value of the cookie
@@ -40,6 +40,53 @@ export const signin = async (req, res, next) => {
       .cookie("access_token", token, { httpOnly: true, expires: expiryDate })
       .status(200)
       .json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const google = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const { password: hashedPassword, ...rest } = user._doc;
+      const expiryDate = new Date(Date.now() + 3600000); //1hour last
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          expires: expiryDate,
+        })
+        .status(200)
+        .json(rest);
+      //근데 이 이메일로 된 계정이 없는 경우에는?? pw 만들어줘야함
+    } else {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+      const newUser = new User({
+        username:
+          req.body.name.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-8),
+        email: req.body.email,
+        password: hashedPassword,
+        profilePicture: req.body.photo,
+      });
+      //db에 newuser만든거 저장하고
+      await newUser.save();
+      //newUser로 만든거라 다시해야 하나봄
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const { password: hashedPassword2, ...rest } = newUser._doc;
+      const expiryDate = new Date(Date.now() + 3600000); //1hour last
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          expires: expiryDate,
+        })
+        .status(200)
+        .json(rest);
+    }
   } catch (error) {
     next(error);
   }
