@@ -8,6 +8,7 @@ export default function OAuth() {
   const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
+      //firebase앱의 인증 객체를 가져옴
       const auth = getAuth(app);
       const result = await signInWithPopup(auth, provider);
       const res = await fetch("/api/auth/google", {
@@ -19,8 +20,8 @@ export default function OAuth() {
           photo: result.user.photoURL,
         }),
       });
+      //서버에서 반환된 데이터로 Redux 상태를 업데이트함
       const data = await res.json();
-
       dispatch(signInSuccess(data));
     } catch (error) {
       console.log("Couldn't connect to Google", error);

@@ -29,7 +29,7 @@ export const signin = async (req, res, next) => {
     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
 
     //Not to return the pw info to client
-    //validUser._doc(주로 필요한 정보는 _doc에 있음)에 pw를 hashedPw 속에 저장하고 그 외의 나저미는 rest라는 변수에 저장하는 디스트럭쳐링 문법임
+    //validUser._doc(주로 필요한 정보는 _doc에 있음)에 pw를 hashedPw 속에 저장하고 그 외의 나머지는 rest라는 변수에 저장하는 디스트럭쳐링 문법임
     const { password: hashedPassword, ...rest } = validUser._doc;
 
     //First, put token inside the cookie using res.cookie()

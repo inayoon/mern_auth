@@ -8,6 +8,7 @@ import { PersistGate } from "redux-persist/integration/react";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
+    {/* Redux Persist의 PersistGate를 사용하여 지속성 스토어가 준비될 때까지 앱을 로딩하는 동안 표시할 내용을 지정합니다. */}
     <PersistGate persistor={persistor} loading={null} />
     <App />
   </Provider>
