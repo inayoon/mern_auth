@@ -17,6 +17,8 @@ export const updateUser = async (req, res, next) => {
     if (req.body.password) {
       req.body.password = bcryptjs.hashSync(req.body.password, 10);
     }
+
+    // 사용자 모델을 업데이트하고 업데이트된 사용자 정보를 반환합니다.
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       {

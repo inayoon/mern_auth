@@ -2,9 +2,11 @@ import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function OAuth() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleGoogleClick = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -23,6 +25,7 @@ export default function OAuth() {
       //서버에서 반환된 데이터로 Redux 상태를 업데이트함
       const data = await res.json();
       dispatch(signInSuccess(data));
+      navigate("/");
     } catch (error) {
       console.log("Couldn't connect to Google", error);
     }
